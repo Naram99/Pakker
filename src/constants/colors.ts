@@ -17,9 +17,30 @@ type SemanticColors = {
     error: string;
 };
 
-export type ThemeName = "beach" | "sightseeing" | "hiking";
+export const semanticColors: SemanticColors = {
+    info: "#5b8dd8",
+    success: "#28a745",
+    warning: "#ed8936",
+    error: "#dc3545",
+};
 
-const colors: { [index in ThemeName]: ColorTheme } = {
+export type ThemeName = "beach" | "sightseeing" | "hiking" | "default";
+
+export const colors: { [index in ThemeName]: ColorTheme } = {
+    default: {
+        light: {
+            primary: "#477ea5",
+            secondary: "#5b8dd8",
+            background: "#f0f2f6",
+            accent: "#ed8936",
+        },
+        dark: {
+            primary: "#f0f4f8",
+            secondary: "#2d3748",
+            background: "#0d1117",
+            accent: "#fbbf24",
+        },
+    },
     beach: {
         light: {
             primary: "#0066cc",
@@ -63,5 +84,3 @@ const colors: { [index in ThemeName]: ColorTheme } = {
         },
     },
 };
-
-export default colors;
