@@ -10,6 +10,21 @@ type ColorScheme = {
     accent: string;
 };
 
+export const defaultColors: ColorTheme = {
+    light: {
+        primary: "#477ea5",
+        secondary: "#5b8dd8",
+        background: "#f0f2f6",
+        accent: "#ed8936",
+    },
+    dark: {
+        primary: "#f0f4f8",
+        secondary: "#2d3748",
+        background: "#0d1117",
+        accent: "#fbbf24",
+    },
+};
+
 type SemanticColors = {
     info: string;
     success: string;
@@ -24,23 +39,9 @@ export const semanticColors: SemanticColors = {
     error: "#dc3545",
 };
 
-export type ThemeName = "beach" | "sightseeing" | "hiking" | "default";
+export type ThemeName = "beach" | "sightseeing" | "hiking";
 
-export const colors: { [index in ThemeName]: ColorTheme } = {
-    default: {
-        light: {
-            primary: "#477ea5",
-            secondary: "#5b8dd8",
-            background: "#f0f2f6",
-            accent: "#ed8936",
-        },
-        dark: {
-            primary: "#f0f4f8",
-            secondary: "#2d3748",
-            background: "#0d1117",
-            accent: "#fbbf24",
-        },
-    },
+export const thematicColors: { [index in ThemeName]: ColorTheme } = {
     beach: {
         light: {
             primary: "#0066cc",
