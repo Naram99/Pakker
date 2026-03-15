@@ -42,3 +42,6 @@ yarn-error.*
 
 # vscode
 .vscode
+
+# curson
+.cursor
