@@ -1,7 +1,9 @@
 import { create } from "zustand";
 import * as SQLite from "expo-sqlite";
+import initializeDatabase from "../app/defaultDatabase";
 
 const db = SQLite.openDatabaseSync("../../assets/pakker_default.db");
+// const db = await initializeDatabase();
 
 interface DefaultItem {
     id: number;
