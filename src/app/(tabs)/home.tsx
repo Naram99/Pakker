@@ -4,14 +4,20 @@ import { useItemStore } from "../../zustand/ItemStore";
 import * as FileSystem from "expo-file-system";
 
 const HomePage = () => {
-    // const items = useItemStore((state) => state.items);
-    // const loadItems = useItemStore((state) => state.loadItems);
-    const dir = new FileSystem.Directory();
+    const init = useItemStore((state) => state.init);
+    const loadItems = useItemStore((state) => state.loadItems);
+    const items = useItemStore((state) => state.items);
+    const isReady = useItemStore((state) => state.isReady);
+    const isLoading = useItemStore((state) => state.isLoading);
+
     useEffect(() => {
-        // loadItems();
-        console.log("asdf");
-        console.log();
+        init();
     }, []);
+
+    useEffect(() => {
+        if (isReady && !isLoading) console.log(items);
+    }, [isReady, isLoading]);
+
     return (
         <View>
             <Text>HomePage</Text>
