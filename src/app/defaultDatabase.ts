@@ -1,6 +1,6 @@
 import { Asset } from "expo-asset";
 import { File, Directory, Paths } from "expo-file-system";
-import { openDatabaseSync } from "expo-sqlite";
+import { openDatabaseSync, SQLiteDatabase } from "expo-sqlite";
 
 const DB_NAME = "pakker_default.db";
 const DOCUMENT_PATH = Paths.document;
@@ -8,7 +8,19 @@ const DB_PATH = Paths.join(DOCUMENT_PATH, "SQLite", DB_NAME);
 
 const DB_ASSET = require("../../assets/pakker_default.db");
 
-export default async function initializeDatabase() {
+let db: SQLiteDatabase | null | undefined = null;
+
+export async function getDB() {
+    if (db) {
+        return db;
+    } else {
+        db = await initializeDatabase();
+
+        return db;
+    }
+}
+
+export async function initializeDatabase() {
     const sqliteDirectory = new Directory(Paths.join(DOCUMENT_PATH, "SQLite"));
     const dbFile = new File(DB_PATH);
 
