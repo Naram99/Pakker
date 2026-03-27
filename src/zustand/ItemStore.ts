@@ -13,7 +13,7 @@ interface ItemStore {
     loadItems: () => Promise<void>;
 
     addItem: (item: CustomItem) => Promise<void>;
-    updateItem: (id: number, updates: Partial<Item>) => Promise<void>;
+    updateItem: (item: Item) => Promise<void>;
 
     deleteItem: (id: number, isCustom: boolean) => Promise<void>;
 }
@@ -67,7 +67,7 @@ export const useItemStore = create<ItemStore>((set, get) => ({
         }
     },
 
-    updateItem: async (id: number, updates: Partial<Item>) => {},
+    updateItem: async (item: Item) => {},
 
     deleteItem: async (id: number) => {
         const prevItems = get().items;

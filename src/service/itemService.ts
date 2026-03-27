@@ -1,5 +1,5 @@
 import { getDB } from "../app/defaultDatabase";
-import { CustomItem, DefaultItem } from "../types/itemTypes";
+import { CustomItem, DefaultItem, Item } from "../types/itemTypes";
 
 class ItemServiceError extends Error {
     constructor(
@@ -57,7 +57,7 @@ export const itemService = {
         await query.executeAsync({ $id: id });
     },
 
-    updateItem: async () => {},
+    updateItem: async (item: CustomItem) => {},
 
     createTmpItem: (item: CustomItem): CustomItem => {
         const tmpId = -Date.now();
