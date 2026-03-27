@@ -23,6 +23,7 @@ export const itemService = {
         return result;
     },
 
+    // TODO: Rethink this, prepared statement or ? placeholder query?
     insertItem: async (item: CustomItem): Promise<CustomItem> => {
         const db = await getDB();
 
@@ -57,7 +58,40 @@ export const itemService = {
         await query.executeAsync({ $id: id });
     },
 
-    updateItem: async (item: CustomItem) => {},
+    updateItem: async (item: Item) => {
+        const db = await getDB();
+
+        if (!db) throw new ItemServiceError("Database is not available!");
+
+        const excludedKeys = new Set(["id", "isCustom"]);
+
+        const fields = Object.entries(item).filter(
+            ([key]) => !excludedKeys.has(key),
+        );
+        const columns = fields.map(([key]) => key);
+        const values = fields.map(([, value]) => value);
+
+        if (item.isCustom) {
+            const setString = columns.map((col) => `${col} = ?`).join(", ");
+
+            await db.runAsync(
+                `UPDATE custom_items SET ${setString} WHERE id = ?`,
+                [...values, item.id],
+            );
+        } else {
+            const columnsString = columns.join(", ");
+            const placeholders = columns.map(() => "?").join(", ");
+
+            const insert = await db.runAsync(
+                `INSERT INTO custom_items (${columnsString}) VALUES (${placeholders})`,
+                values,
+            );
+
+            item = { ...item, id: insert.lastInsertRowId };
+        }
+
+        return item;
+    },
 
     createTmpItem: (item: CustomItem): CustomItem => {
         const tmpId = -Date.now();
