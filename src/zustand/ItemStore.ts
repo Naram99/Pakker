@@ -1,6 +1,4 @@
 import { create } from "zustand";
-import * as SQLite from "expo-sqlite";
-import { getDB } from "../app/defaultDatabase";
 import { CustomItem, DefaultItem, Item } from "../types/itemTypes";
 import { itemService } from "../service/itemService";
 
@@ -8,12 +6,10 @@ import { itemService } from "../service/itemService";
 // const db = await initializeDatabase();
 
 interface ItemStore {
-    db: SQLite.SQLiteDatabase | null | undefined;
     items: Item[];
-    isReady: boolean;
     isLoading: boolean;
+    error: string | null;
 
-    init: () => Promise<void>;
     loadItems: () => Promise<void>;
 
     addItem: (item: CustomItem) => Promise<void>;
@@ -23,52 +19,33 @@ interface ItemStore {
 }
 
 export const useItemStore = create<ItemStore>((set, get) => ({
-    db: null,
     items: [],
-    isReady: false,
     isLoading: false,
-
-    init: async () => {
-        if (get().isReady || get().isLoading) return;
-
-        set({ isLoading: true });
-
-        try {
-            const database = await getDB();
-            set({ db: database, isReady: true });
-        } catch (error) {
-            console.error(`ItemStore init failed: ${error}`);
-        } finally {
-            set({ isLoading: false });
-        }
-    },
+    error: null,
 
     loadItems: async () => {
-        const { db } = get();
+        if (get().isLoading) return;
 
-        if (!get().isReady || get().isLoading || !db) return;
-
-        set({ isLoading: true });
+        set({ isLoading: true, error: null });
 
         try {
-            const result = await db.getAllAsync<DefaultItem>(
-                "SELECT * FROM default_items",
-            );
-            set({ items: result });
-        } catch (error) {
-            console.error(error);
+            const result = await itemService.loadItems();
+            set({ items: result, error: null });
+        } catch (e) {
+            console.error(e);
+            // Error msg translation?
+            set({ items: [], error: "Failed to load items" });
         } finally {
             set({ isLoading: false });
         }
     },
 
     addItem: async (item: CustomItem) => {
-        const tmpId = -Date.now();
-
-        const tmpItem: CustomItem = itemService.createTmpItem(item, tmpId);
+        const tmpItem: CustomItem = itemService.createTmpItem(item);
 
         set((state) => ({
             items: [tmpItem, ...state.items],
+            error: null,
         }));
 
         try {
@@ -76,14 +53,16 @@ export const useItemStore = create<ItemStore>((set, get) => ({
 
             set((state) => ({
                 items: state.items.map((i) =>
-                    i.id === tmpId ? insertedItem : i,
+                    i.id === tmpItem.id ? insertedItem : i,
                 ),
+                error: null,
             }));
         } catch (error) {
             console.error(error);
             // Rollback
             set((state) => ({
-                items: state.items.filter((i) => i.id !== tmpId),
+                items: state.items.filter((i) => i.id !== tmpItem.id),
+                error: "Failed to save item",
             }));
         }
     },
@@ -95,6 +74,7 @@ export const useItemStore = create<ItemStore>((set, get) => ({
 
         set((state) => ({
             items: state.items.filter((item) => item.id !== id),
+            error: null,
         }));
 
         try {
@@ -102,7 +82,7 @@ export const useItemStore = create<ItemStore>((set, get) => ({
         } catch (error) {
             console.error(error);
             // Rollback
-            set({ items: prevItems });
+            set({ items: prevItems, error: "Failed to remove item" });
         }
     },
 }));

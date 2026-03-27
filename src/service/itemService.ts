@@ -1,5 +1,5 @@
 import { getDB } from "../app/defaultDatabase";
-import { CustomItem } from "../types/itemTypes";
+import { CustomItem, DefaultItem } from "../types/itemTypes";
 
 class ItemServiceError extends Error {
     constructor(
@@ -11,6 +11,18 @@ class ItemServiceError extends Error {
 }
 
 export const itemService = {
+    loadItems: async (): Promise<DefaultItem[]> => {
+        const db = await getDB();
+
+        if (!db) throw new ItemServiceError("Database is not available!");
+
+        const result = await db.getAllAsync<DefaultItem>(
+            "SELECT * FROM default_items",
+        );
+
+        return result;
+    },
+
     insertItem: async (item: CustomItem): Promise<CustomItem> => {
         const db = await getDB();
 
@@ -47,7 +59,8 @@ export const itemService = {
 
     updateItem: async () => {},
 
-    createTmpItem: (item: CustomItem, id: number): CustomItem => {
-        return { ...item, id: id, status: "saving" };
+    createTmpItem: (item: CustomItem): CustomItem => {
+        const tmpId = -Date.now();
+        return { ...item, id: tmpId, status: "saving" };
     },
 };
